@@ -7,15 +7,6 @@ from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 SqlAlchemyBase = sqlalchemy.orm.declarative_base()
 
 
-class UrlEntity(SqlAlchemyBase):
-    __tablename__ = 'urls'
-
-    long_url = Column(String, primary_key=True, nullable=False)
-    token = Column(String, unique=True, nullable=False)
-    expiration_date = Column(Date, nullable=False)
-    clicks_count = Column(Integer, default=0, nullable=False)
-
-
 class DataBase:
     def __init__(self, db_name, user, password):
         # Создаём временное подключение к postgres
@@ -53,8 +44,8 @@ class DataBase:
         calendar_table = Table('calendar', metadata,
                                Column('id', Integer, primary_key=True, nullable=False),
                                Column('email', String, nullable=False),
-                               Column('arrival', Date, nullable=False),
-                               Column('departure', Date, nullable=False),
+                               Column('fromDate', Date, nullable=False),
+                               Column('toDate', Date, nullable=False),
                                Column('department', Integer, nullable=False),
                                Column('reason', String, nullable=False))
 
@@ -92,3 +83,7 @@ class DataBase:
 
         # Закрытие соединения
         conn.close()
+
+    def insert_to_users(self, users_table, data):
+        with Session(self.engine) as session:
+            pass
