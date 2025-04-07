@@ -1,44 +1,60 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      const response = await axios.post('/api/auth/login', { email, password });
-      const token = response.data.token;
-      localStorage.setItem('authToken', token); // Сохраняем токен в localStorage
-      alert('Успешный вход!');
-      window.location.href = '/'; // Перенаправляем на главную страницу
-    } catch (error) {
-      console.error('Ошибка входа:', error);
-      alert('Неверный email или пароль');
+    
+    // Валидация
+    if (!email || !password) {
+      setError('Все поля обязательны для заполнения');
+      return;
     }
+    
+    // В реальном приложении здесь будет запрос к API
+    console.log('Вход:', { email, password });
+    
+    // Перенаправление на главную страницу
+    navigate('/');
   };
 
   return (
-    <div className="login-page">
-      <h2>Войти в аккаунт</h2>
-      <form onSubmit={handleLogin}>
-        <input
-          type="email"
-          placeholder="E-mail"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Пароль"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+    <div className="auth-page">
+      <h2>Вход в систему</h2>
+      {error && <div className="error-message">{error}</div>}
+      
+      <form onSubmit={handleSubmit} className="auth-form">
+        <label>
+          Email:
+          <input 
+            type="email" 
+            value={email} 
+            onChange={(e) => setEmail(e.target.value)} 
+            required 
+          />
+        </label>
+        
+        <label>
+          Пароль:
+          <input 
+            type="password" 
+            value={password} 
+            onChange={(e) => setPassword(e.target.value)} 
+            required 
+          />
+        </label>
+        
         <button type="submit">Войти</button>
       </form>
+      
+      <p>
+        Нет аккаунта? <a href="/register">Зарегистрироваться</a>
+      </p>
     </div>
   );
 };
