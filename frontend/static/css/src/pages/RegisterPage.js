@@ -1,63 +1,119 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const RegisterPage = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [formData, setFormData] = useState({
+    email: '',
+    name: '',
+    surname: '',
+    middlename: '',
+    password: '',
+    confirmPassword: '',
+  });
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-  const handleRegister = async (e) => {
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    if (password !== confirmPassword) {
-      alert('Пароли не совпадают');
+    
+    // Валидация
+    if (formData.password !== formData.confirmPassword) {
+      setError('Пароли не совпадают');
       return;
     }
-
-    try {
-      const response = await axios.post('/api/auth/register', { name, email, password });
-      alert('Аккаунт успешно создан!');
-      window.location.href = '/login'; // Перенаправляем на страницу входа
-    } catch (error) {
-      console.error('Ошибка регистрации:', error);
-      alert('Ошибка при создании аккаунта');
-    }
+    
+    // В реальном приложении здесь будет запрос к API
+    console.log('Регистрация:', formData);
+    
+    // Перенаправление на главную страницу
+    navigate('/');
   };
 
   return (
-    <div className="register-page">
-      <h2>Создать аккаунт</h2>
-      <form onSubmit={handleRegister}>
-        <input
-          type="text"
-          placeholder="Имя"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
-        <input
-          type="email"
-          placeholder="E-mail"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Пароль"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Повторите пароль"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          required
-        />
-        <button type="submit">Регистрация</button>
+    <div className="auth-page">
+      <h2>Регистрация</h2>
+      {error && <div className="error-message">{error}</div>}
+      
+      <form onSubmit={handleSubmit} className="auth-form">
+        <label>
+          Email:
+          <input 
+            type="email" 
+            name="email" 
+            value={formData.email} 
+            onChange={handleChange} 
+            required 
+          />
+        </label>
+        
+        <label>
+          Имя:
+          <input 
+            type="text" 
+            name="name" 
+            value={formData.name} 
+            onChange={handleChange} 
+            required 
+          />
+        </label>
+        
+        <label>
+          Фамилия:
+          <input 
+            type="text" 
+            name="surname" 
+            value={formData.surname} 
+            onChange={handleChange} 
+            required 
+          />
+        </label>
+        
+        <label>
+          Отчество:
+          <input 
+            type="text" 
+            name="middlename" 
+            value={formData.middlename} 
+            onChange={handleChange} 
+            required 
+          />
+        </label>
+        
+        <label>
+          Пароль:
+          <input 
+            type="password" 
+            name="password" 
+            value={formData.password} 
+            onChange={handleChange} 
+            required 
+          />
+        </label>
+        
+        <label>
+          Подтвердите пароль:
+          <input 
+            type="password" 
+            name="confirmPassword" 
+            value={formData.confirmPassword} 
+            onChange={handleChange} 
+            required 
+          />
+        </label>
+        
+        <button type="submit">Зарегистрироваться</button>
       </form>
+      
+      <p>
+        Уже есть аккаунт? <a href="/login">Войти</a>
+      </p>
     </div>
   );
 };
