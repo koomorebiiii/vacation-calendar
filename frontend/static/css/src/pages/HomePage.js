@@ -1,53 +1,72 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
 import Calendar from '../components/Calendar';
 import DepartmentFilter from '../components/DepartmentFilter';
 import Modal from '../components/Modal';
 import AddVacationForm from '../components/AddVacationForm';
+import { useNavigate } from 'react-router-dom';
 
 const HomePage = () => {
-  const [vacations, setVacations] = useState([]);
-  const [departments, setDepartments] = useState([]);
-  const [selectedDepartment, setSelectedDepartment] = useState(null);
-  const [showModal, setShowModal] = useState(false);
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDepartment, setSelectedDepartment] = useState('all');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    // Получаем список отпусков
-    axios.get('/api/vacations').then((response) => {
-      setVacations(response.data);
-    });
+  const month = currentDate.getMonth();
+  const year = currentDate.getFullYear();
 
-    // Получаем список отделов
-    axios.get('/api/departments').then((response) => {
-      setDepartments(response.data);
-    });
-  }, []);
+  const handleMonthChange = (newMonth, newYear) => {
+    setCurrentDate(new Date(newYear, newMonth, 1));
+  };
 
-  const handleAddVacation = async (formData) => {
-    try {
-      await axios.post('/api/vacations', formData);
-      setShowModal(false); // Закрываем модальное окно
-      alert('Отпуск успешно добавлен!');
-      // Обновляем список отпусков
-      const updatedVacations = [...vacations, formData];
-      setVacations(updatedVacations);
-    } catch (error) {
-      console.error('Ошибка добавления отпуска:', error);
-      alert('Не удалось добавить отпуск');
-    }
+  const handleAddVacation = (vacationData) => {
+    console.log('Добавлен отпуск:', vacationData);
+    setIsModalOpen(false);
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    const query = e.target.search.value;
+    // В реальном приложении здесь будет поиск и перенаправление
+    console.log('Поиск:', query);
   };
 
   return (
     <div className="home-page">
-      <h1>Март, 2025 ▼</h1>
       <div className="controls">
-        <input type="text" placeholder="Введите запрос" />
-        <button onClick={() => setShowModal(true)}>+ Добавить информацию</button>
+        <DepartmentFilter 
+          selectedDepartment={selectedDepartment} 
+          onSelect={setSelectedDepartment} 
+        />
+        
+        <button 
+          className="add-vacation-btn" 
+          onClick={() => setIsModalOpen(true)}
+        >
+          Добавить отпуск
+        </button>
+        
+        <form onSubmit={handleSearch} className="search-form">
+          <input 
+            type="text" 
+            name="search" 
+            placeholder="Поиск по ФИО" 
+          />
+          <button type="submit">Найти</button>
+        </form>
       </div>
-      <DepartmentFilter departments={departments} selectedDepartment={selectedDepartment} onSelect={setSelectedDepartment} />
-      <Calendar vacations={vacations} selectedDepartment={selectedDepartment} />
-      <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
-        <AddVacationForm onSubmit={handleAddVacation} />
+      
+      <Calendar 
+        month={month} 
+        year={year} 
+        vacations={[]} 
+        onMonthChange={handleMonthChange} 
+      />
+      
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <AddVacationForm 
+          onSubmit={handleAddVacation} 
+          onCancel={() => setIsModalOpen(false)} 
+        />
       </Modal>
     </div>
   );
